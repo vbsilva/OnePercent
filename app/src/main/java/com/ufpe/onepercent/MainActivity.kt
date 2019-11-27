@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 const val RC_SIGN_IN = 123
-
+//https://www.youtube.com/watch?v=ZC2w2iQQOdo salvou a patria
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         val mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         sign_in_button.visibility = View.VISIBLE
-        //tv_name.visibility = View.GONE
+        tv_name.visibility = View.GONE
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener{
             val signInIntent = mGoogleSignInClient.signInIntent
@@ -45,8 +45,8 @@ class MainActivity : AppCompatActivity() {
         val acct = GoogleSignIn.getLastSignedInAccount(this)
         if (acct != null) {
             sign_in_button.visibility = View.GONE
-            //tv_name.text = acct.displayName
-            //tv_name.visibility = View.VISIBLE
+            tv_name.text = acct.displayName
+            tv_name.visibility = View.VISIBLE
         }
     }
 
@@ -67,15 +67,15 @@ class MainActivity : AppCompatActivity() {
             val account = completedTask.getResult(ApiException::class.java)
 
             sign_in_button.visibility = View.GONE
-            //tv_name.text = account.displayName
-            //tv_name.visibility = View.VISIBLE
+            tv_name.text = account!!.displayName
+            tv_name.visibility = View.VISIBLE
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
 
             sign_in_button.visibility = View.VISIBLE
-            //tv_name.text = ""
-            //tv_name.visibility = View.GONE
+            tv_name.text = ""
+            tv_name.visibility = View.GONE
 
         }
 
