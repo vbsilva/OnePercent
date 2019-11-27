@@ -9,7 +9,6 @@ import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.view.View
-import android.widget.Button
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -17,6 +16,8 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_main.*
+
+
 
 
 const val RC_SIGN_IN = 123
@@ -48,6 +49,14 @@ class MainActivity : AppCompatActivity() {
             tv_name.text = acct.displayName
             tv_name.visibility = View.VISIBLE
         }
+
+        sign_out_button.setOnClickListener { signOut(mGoogleSignInClient) }
+    }
+
+    fun signOut(mGoogleSignInClient: GoogleSignInClient) {
+        mGoogleSignInClient.signOut()
+        finish()
+        startActivity(getIntent())
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
