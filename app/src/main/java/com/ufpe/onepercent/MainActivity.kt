@@ -9,6 +9,7 @@ import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.view.View
+import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         val mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         sign_in_button.visibility = View.VISIBLE
-        tv_name.visibility = View.GONE
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener{
             val signInIntent = mGoogleSignInClient.signInIntent
@@ -46,17 +46,17 @@ class MainActivity : AppCompatActivity() {
         val acct = GoogleSignIn.getLastSignedInAccount(this)
         if (acct != null) {
             sign_in_button.visibility = View.GONE
-            tv_name.text = acct.displayName
-            tv_name.visibility = View.VISIBLE
         }
 
         sign_out_button.setOnClickListener { signOut(mGoogleSignInClient) }
+        Toast.makeText(this, "On Create", Toast.LENGTH_LONG).show()
     }
 
     fun signOut(mGoogleSignInClient: GoogleSignInClient) {
         mGoogleSignInClient.signOut()
         finish()
         startActivity(getIntent())
+        Toast.makeText(this, "SIGNED OUT", Toast.LENGTH_LONG).show()
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -76,15 +76,12 @@ class MainActivity : AppCompatActivity() {
             val account = completedTask.getResult(ApiException::class.java)
 
             sign_in_button.visibility = View.GONE
-            tv_name.text = account!!.displayName
-            tv_name.visibility = View.VISIBLE
+            Toast.makeText(this, account!!.displayName + " LOGGED", Toast.LENGTH_LONG).show()
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
 
             sign_in_button.visibility = View.VISIBLE
-            tv_name.text = ""
-            tv_name.visibility = View.GONE
 
         }
 
