@@ -46,17 +46,17 @@ class MainActivity : AppCompatActivity() {
         val acct = GoogleSignIn.getLastSignedInAccount(this)
         if (acct != null) {
             sign_in_button.visibility = View.GONE
+            goToMapActivity(acct!!)
         }
 
         sign_out_button.setOnClickListener { signOut(mGoogleSignInClient) }
-        Toast.makeText(this, "On Create", Toast.LENGTH_LONG).show()
     }
 
     fun signOut(mGoogleSignInClient: GoogleSignInClient) {
         mGoogleSignInClient.signOut()
         finish()
         startActivity(getIntent())
-        Toast.makeText(this, "SIGNED OUT", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Signed Out", Toast.LENGTH_LONG).show()
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -76,7 +76,8 @@ class MainActivity : AppCompatActivity() {
             val account = completedTask.getResult(ApiException::class.java)
 
             sign_in_button.visibility = View.GONE
-            Toast.makeText(this, account!!.displayName + " LOGGED", Toast.LENGTH_LONG).show()
+            goToMapActivity(account!!)
+
         } catch (e: ApiException) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -85,5 +86,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun goToMapActivity(account: GoogleSignInAccount) {
+        Toast.makeText(this, account!!.displayName + " Signed In", Toast.LENGTH_LONG).show()
+        startActivity(Intent(this, MapActivity::class.java))
     }
 }
