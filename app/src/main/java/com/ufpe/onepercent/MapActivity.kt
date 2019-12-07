@@ -2,6 +2,7 @@ package com.ufpe.onepercent
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.GoogleMap
@@ -38,6 +39,13 @@ class MapActivity : AppCompatActivity() {
 
             mDialogView.dialogAddButton.setOnClickListener {
                 mAlertDialog.dismiss()
+                val outlet = Outlet(place = mDialogView.dialogPlaceText.text.toString(), description = mDialogView.dialogDescriptionText.text.toString())
+                val debugText: String = "NEW OUTLET\nplace: %s\ndesc: %s".format(outlet.place, outlet.description)
+                Toast.makeText(this, debugText, Toast.LENGTH_LONG).show()
+
+
+
+
             }
 
 
