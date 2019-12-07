@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import kotlinx.android.synthetic.main.activity_map.*
 
 
 class MapActivity : AppCompatActivity() {
@@ -21,6 +22,11 @@ class MapActivity : AppCompatActivity() {
         mapFragment.getMapAsync(OnMapReadyCallback {
             googleMap = it
         })
+
+        var add_outlet_button = addOutletButton
+        add_outlet_button.setOnClickListener {
+            println("clickedddddddddd")
+        }
     }
 
 }
