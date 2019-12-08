@@ -1,25 +1,18 @@
 package com.ufpe.onepercent
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_main.*
-
-
-
 
 const val RC_SIGN_IN = 123
 //https://www.youtube.com/watch?v=ZC2w2iQQOdo salvou a patria
@@ -35,19 +28,29 @@ class MainActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         // Build a GoogleSignInClient with the options specified by gso.
-        val mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        val mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
         sign_in_button.visibility = View.VISIBLE
         sign_in_button.setSize(SignInButton.SIZE_STANDARD)
         sign_in_button.setOnClickListener{
             val signInIntent = mGoogleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
+            val acct = GoogleSignIn.getLastSignedInAccount(this)
+            if (acct != null) {
+                sign_in_button.visibility = View.GONE
+                goToMapActivity(acct)
+            }
+
+            ///Deixando para testes no MI8
+            else{
+                sign_in_button.visibility = View.GONE
+                startActivity(Intent(this, MapActivity::class.java))
+            }
+            //TIRAR ISSO DEPOIS
         }
-        val acct = GoogleSignIn.getLastSignedInAccount(this)
-        if (acct != null) {
-            sign_in_button.visibility = View.GONE
-            goToMapActivity(acct!!)
-        }
+
+
+
 
         sign_out_button.setOnClickListener { signOut(mGoogleSignInClient) }
     }
@@ -89,7 +92,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToMapActivity(account: GoogleSignInAccount) {
-        Toast.makeText(this, account!!.displayName + " Signed In", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, account.displayName + " Signed In", Toast.LENGTH_LONG).show()
         startActivity(Intent(this, MapActivity::class.java))
     }
 }
+

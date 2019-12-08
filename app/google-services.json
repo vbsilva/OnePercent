@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "540565416091",
+    "firebase_url": "https://onepercent-1131c.firebaseio.com",
+    "project_id": "onepercent-1131c",
+    "storage_bucket": "onepercent-1131c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540565416091:android:956734194e0fa25efd3e3e",
+        "android_client_info": {
+          "package_name": "com.ufpe.onepercent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540565416091-ipeo68oucvvarenhjbstp8h7kfk341k1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDIevLmcizmFp-3ET12-JLAOoOdIpAEig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "540565416091-ipeo68oucvvarenhjbstp8h7kfk341k1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

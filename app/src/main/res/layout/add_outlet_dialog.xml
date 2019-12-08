@@ -6,16 +6,16 @@
     android:padding="10dp">
 
     <EditText
+        android:id="@+id/dialogPlaceText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/dialogPlaceText"
-        android:hint="Add Outlet Place"/>
+        android:hint="Add Outlet Place(Floor, Room, Near To)" />
 
     <EditText
+        android:id="@+id/dialogDescriptionText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/dialogDescriptionText"
-        android:hint="Add Outlet Description"/>
+        android:hint="Add Outlet Description(Voltage, Color, Old/New)" />
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
