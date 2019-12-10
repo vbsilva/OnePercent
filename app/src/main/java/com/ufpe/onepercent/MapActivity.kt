@@ -1,39 +1,66 @@
 package com.ufpe.onepercent
 
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.maps.android.PolyUtil
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.add_outlet_dialog.view.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import org.json.JSONObject
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 class MapActivity : AppCompatActivity() {
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+    }
+    val ref = FirebaseDatabase.getInstance().getReference("markers")
+    lateinit var pl: Polyline
     lateinit var mapFragment: SupportMapFragment
     lateinit var googleMap: GoogleMap
-    override fun onCreate(savedInstanceState: Bundle?) {
+    lateinit var lastLocation: Location
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+    override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
         // https://www.youtube.com/watch?v=suwq7Nta3oM
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        createMap()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        try{createMap()}
+        catch(e:Throwable){
+            println(e.message)
+        }
+
+
+        //val destiny: LatLng = it.position
+            //routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
+            //return@setOnMarkerClickListener true
 
 
         val add_outlet_button = addOutletButton
@@ -53,81 +80,124 @@ class MapActivity : AppCompatActivity() {
 
                 Toast.makeText(this, debugText, Toast.LENGTH_LONG).show()
 
-                addMarkeratDatabase(-1.0,-1.0,outlet.place,outlet.description)
-
-
-
+                addMarkeratDatabase(lastLocation.latitude,lastLocation.longitude,outlet.place as String,outlet.description as String)
             }
-
-
-
         }
     }
     private fun addMarkeratDatabase(lat:Double,lng:Double,desc:String,loc:String){
-        val ref = FirebaseDatabase.getInstance().getReference("markers")
-        val coord = arrayOf(lat,lng)
+
+        val coord = listOf(lat,lng)
         val marker:MutableMap<String, Any> = mutableMapOf()
         marker["description"] = desc
         marker["location"] = loc
         marker["coord"] = coord
         val k:String = ref.push().key as String
-        ref.child(k).setValue(marker)
-    }
-    private suspend fun createMap() {
-
-        val coords : MutableList<ArrayList<Double>> = runBlocking {
-            getMarkers()
+        try{
+            ref.child(k).setValue(marker)
+            val latLng = LatLng(lat, lng)
+            val markerOptions: MarkerOptions =
+                MarkerOptions().position(latLng).title(loc).snippet(desc)
+            googleMap!!.addMarker(markerOptions)
+        }
+        catch(e:Throwable){
+            println(e.message)
         }
 
-        delay(10_000)
-
-        try {
-            mapFragment.getMapAsync(OnMapReadyCallback {
-                googleMap = it
-                it.setMinZoomPreference(16.5f)
-                val zoomLevel = 18.5f //This goes up to 21
-                googleMap.let {
-                    for (i in coords) {
-                        val latLng = LatLng(i[0], i[1])
-                        val markerOptions: MarkerOptions =
-                            MarkerOptions().position(latLng).title(coords.toString())
-                        it!!.addMarker(markerOptions)
-
-                    }
-                    val latLng = LatLng(-8.055788, -34.951489)
-                    val markerOptions: MarkerOptions =
-                        MarkerOptions().position(latLng).title(coords.toString())
-                    it!!.addMarker(markerOptions)
-                    it.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
-
-                }
-            })
-            } catch (e: Throwable) {
-                println(e.message)
-            }
-
-
 
     }
-        private suspend fun getMarkers(): MutableList<ArrayList<Double>> {
+    private fun createMap() {
 
-            val ref = FirebaseDatabase.getInstance().getReference("markers")
-            val listOfCoords = mutableListOf<ArrayList<Double>>()
+        setUpMap()
+                mapFragment.getMapAsync(OnMapReadyCallback {
+                    googleMap = it
+                    //it.setMinZoomPreference(16.5f)
+                    val zoomLevel = 18.5f //This goes up to 21
+                    googleMap.let {
+                        getMarkers()
+                        val latLng = LatLng(-8.151968, -34.916035)
+                        val markerOptions: MarkerOptions =
+                            MarkerOptions().position(latLng).title("Testing")
+                        it!!.addMarker(markerOptions)
+                        googleMap.isMyLocationEnabled = true
+                        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                            if (location != null) {
+                                lastLocation = location
+                                val currentLatLng = LatLng(location.latitude, location.longitude)
+                                googleMap.animateCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                        currentLatLng,
+                                        12f
+                                    )
+                                )
+                            }
+                        }
+                        googleMap!!.setOnMarkerClickListener { marker ->
+                            val destiny: LatLng = marker.position
+                            if (::pl.isInitialized) {
+                                pl.remove()
+                            }
+                            routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
+                            false
+                        }
+                    }
+                })
+
+    }
+        private fun getMarkers(){
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     for (i in dataSnapshot.children){
                         val child: Map<String, Object> = (i.getValue() as Map<String, Object>)
                         val coords:ArrayList<Double> = child["coord"] as ArrayList<Double>
-                        listOfCoords.add(coords)
+                        val latLng = LatLng(coords[0],coords[1])
+                        val markerOptions: MarkerOptions =
+                            MarkerOptions().position(latLng).title(child["description"] as String).snippet(child["location"] as String)
+                        googleMap!!.addMarker(markerOptions)
+
                     }
                 }
                 override fun onCancelled(databaseError: DatabaseError) {
                     println("Error!!!")
                 }
-
             })
+        }
+        private fun setUpMap() {
+            if (ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+                return
+            }
+        }
+        private fun routeMaker(A:LatLng,B:LatLng){
+            val path: MutableList<List<LatLng>> = ArrayList()
+            //val urlDirections = "https://maps.googleapis.com/maps/api/directions/json?origin=${A.latitude},${A.longitude}&destination=${B.latitude},${B.longitude}&key=AIzaSyCDIevLmcizmFp-3ET12-JLAOoOdIpAEig"
+            val urlDirections ="https://maps.googleapis.com/maps/api/directions/json?origin=${A.latitude},${A.longitude}&destination=${B.latitude},${B.longitude}&key=AIzaSyCDIevLmcizmFp-3ET12-JLAOoOdIpAEig"
+            val directionsRequest = object : StringRequest(Request.Method.GET, urlDirections, Response.Listener<String> {
+                    response ->
+                val jsonResponse = JSONObject(response)
+                // Get routes
+                val routes = jsonResponse.getJSONArray("routes")
+                val legs = routes.getJSONObject(0).getJSONArray("legs")
+                val steps = legs.getJSONObject(0).getJSONArray("steps")
+                for (i in 0 until steps.length()) {
+                    val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+                    path.add(PolyUtil.decode(points))
+                }
+                for (i in 0 until path.size) {
+                    pl = this.googleMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.RED))
+                }
+            }, Response.ErrorListener {
+                println(it.networkResponse)
+            }){}
+            val requestQueue = Volley.newRequestQueue(this)
+            try{
+                requestQueue.add(directionsRequest)
+            }
+            catch(e:Throwable){
+                println(e.message)
+            }
 
-            return listOfCoords
         }
     }
 

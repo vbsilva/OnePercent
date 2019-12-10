@@ -22,6 +22,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        startActivity(Intent(this, MapActivity::class.java))
+        finish()
+
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -45,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             else{
                 sign_in_button.visibility = View.GONE
                 startActivity(Intent(this, MapActivity::class.java))
+                finish()
             }
             //TIRAR ISSO DEPOIS
         }
