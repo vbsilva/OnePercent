@@ -27,5 +27,17 @@
         android:focusable="true"
         app:srcCompat="@android:drawable/ic_menu_add" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scoreButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        android:background="@null"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
+
 
 </RelativeLayout>

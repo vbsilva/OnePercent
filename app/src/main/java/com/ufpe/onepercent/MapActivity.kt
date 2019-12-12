@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_BATTERY_CHANGED
 import android.content.Intent.ACTION_POWER_CONNECTED
 import android.content.IntentFilter
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -32,19 +33,16 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.maps.android.PolyUtil
+import com.ufpe.onepercent.model.Outlet
+import com.ufpe.onepercent.model.User
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.add_outlet_dialog.view.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
 import org.json.JSONObject
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
@@ -56,12 +54,18 @@ class MapActivity : AppCompatActivity() {
     val ref = FirebaseDatabase.getInstance().getReference("markers")
 
 
+    val users_ref = FirebaseDatabase.getInstance().getReference("users")
     lateinit var pl: Polyline
 
     lateinit var mapFragment: SupportMapFragment
     lateinit var googleMap: GoogleMap
     lateinit var lastLocation: Location
     lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    var users = ArrayList<User>()
+
+
+
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -73,6 +77,25 @@ class MapActivity : AppCompatActivity() {
             println(e.message)
         }
 
+        var extras_data = intent.extras
+        var logged_username:String? = ""
+        var photoUrl:String? = ""
+        var userId:String? = ""
+
+        if (extras_data != null) {
+            logged_username = extras_data.getString("username")
+            photoUrl = extras_data.getString("photoUrl")
+            userId = extras_data.getString("id")
+            Toast.makeText(this, logged_username + " Logged In", Toast.LENGTH_LONG).show()
+        }
+
+        var logged_user = User(
+            name = logged_username!!,
+            id = userId!!,
+            photoUrl = photoUrl!!,
+            score = 0
+        )
+        getUsers(logged_user)
 
         val add_outlet_button = addOutletButton
         add_outlet_button.setOnClickListener {
@@ -86,15 +109,81 @@ class MapActivity : AppCompatActivity() {
 
             mDialogView.dialogAddButton.setOnClickListener {
                 mAlertDialog.dismiss()
-                val outlet = Outlet(place = mDialogView.dialogPlaceText.text.toString(), description = mDialogView.dialogDescriptionText.text.toString())
-                val debugText: String = "NEW OUTLET\nplace: %s\ndesc: %s".format(outlet.place, outlet.description)
-
-                Toast.makeText(this, debugText, Toast.LENGTH_LONG).show()
+                val outlet = Outlet(
+                    place = mDialogView.dialogPlaceText.text.toString(),
+                    description = mDialogView.dialogDescriptionText.text.toString()
+                )
+                val debugText: String = "Outlet added!\nplace: %s\ndesc: %s".format(outlet.place, outlet.description)
 
                 addMarkeratDatabase(lastLocation.latitude,lastLocation.longitude,outlet.place as String,outlet.description as String)
+                Toast.makeText(this, debugText, Toast.LENGTH_LONG).show()
             }
         }
+
+
+        val score_button = scoreButton
+        score_button.setOnClickListener {
+            startActivity(Intent(this, ScoreActivity::class.java))
+
+        }
+
     }
+
+
+
+    private fun getUsers(logged_user: User){
+        users_ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            var found: Boolean = false
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (i in dataSnapshot.children){
+                    var child: Map<String, Object> = (i.getValue() as Map<String, Object>)
+                    var username:String = child["username"] as String
+                    var score:Long = child["score"] as Long
+                    var photoUrl:String = child["photoUrl"] as String
+                    var id: String = child["id"] as String
+                    var user = User(
+                        name = username,
+                        score = score,
+                        photoUrl = photoUrl,
+                        id = id
+                    )
+                    users.add(user)
+
+                    if (username == logged_user.name) {
+                        found = true
+                        logged_user.score = score
+                        println("************************************** user already in DB")
+
+                    }
+                }
+
+                if (!found) {
+                    println("\n*************************************** adding user " + logged_user.name)
+                    addUserDatabase(logged_user)
+                }
+            }
+
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Error!!!")
+            }
+        })
+    }
+
+    private fun addUserDatabase(user: User){
+
+        val db_user:MutableMap<String, Any> = mutableMapOf()
+        db_user["username"] = user.name
+        db_user["score"] = user.score
+        db_user["photoUrl"] = user.photoUrl
+        db_user["id"] = user.id
+        val k:String = users_ref.push().key as String
+        users_ref.child(k).setValue(db_user)
+
+
+    }
+
+
     private fun addMarkeratDatabase(lat:Double,lng:Double,desc:String,loc:String){
 
         val coord = listOf(lat,lng)
@@ -160,7 +249,6 @@ class MapActivity : AppCompatActivity() {
                                 pl.remove()
                             }
                             routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
-                            //getChargeInfo()
                             false
                         }
                     }

@@ -46,11 +46,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             ///Deixando para testes no MI8
-            else{
-                sign_in_button.visibility = View.GONE
-                startActivity(Intent(this, MapActivity::class.java))
-                finish()
-            }
+            //else{
+            //    sign_in_button.visibility = View.GONE
+            //    startActivity(Intent(this, MapActivity::class.java))
+            //    finish()
+           // }
             //TIRAR ISSO DEPOIS
         }
 
@@ -97,8 +97,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToMapActivity(account: GoogleSignInAccount) {
-        Toast.makeText(this, account.displayName + " Signed In", Toast.LENGTH_LONG).show()
-        startActivity(Intent(this, MapActivity::class.java))
+        var intent = Intent(this, MapActivity::class.java)
+        val username:String = if(account.email == null) "" else account.email!!.split("@")[0]
+        intent.putExtra("photoUrl", account.photoUrl.toString())
+        intent.putExtra("username", username)
+        intent.putExtra("id", account.id)
+        println("************************** "+ account.id)
+        startActivity(intent)
     }
 }
 
