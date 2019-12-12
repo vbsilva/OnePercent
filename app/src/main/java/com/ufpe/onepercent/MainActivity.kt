@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startActivity(Intent(this, MapActivity::class.java))
-        finish()
+        //startActivity(Intent(this, MapActivity::class.java))
+        //finish()
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             if (acct != null) {
                 sign_in_button.visibility = View.GONE
                 goToMapActivity(acct)
+                finish()
             }
 
             ///Deixando para testes no MI8

@@ -1,14 +1,26 @@
 package com.ufpe.onepercent
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.Intent.ACTION_BATTERY_CHANGED
+import android.content.Intent.ACTION_POWER_CONNECTED
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
+import android.os.BatteryManager
+import android.os.BatteryManager.BATTERY_STATUS_CHARGING
+import android.os.BatteryManager.BATTERY_STATUS_FULL
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -34,6 +46,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import org.json.JSONObject
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.properties.Delegates
 
 
 class MapActivity : AppCompatActivity() {
@@ -41,7 +54,10 @@ class MapActivity : AppCompatActivity() {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
     val ref = FirebaseDatabase.getInstance().getReference("markers")
+
+
     lateinit var pl: Polyline
+
     lateinit var mapFragment: SupportMapFragment
     lateinit var googleMap: GoogleMap
     lateinit var lastLocation: Location
@@ -56,11 +72,6 @@ class MapActivity : AppCompatActivity() {
         catch(e:Throwable){
             println(e.message)
         }
-
-
-        //val destiny: LatLng = it.position
-            //routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
-            //return@setOnMarkerClickListener true
 
 
         val add_outlet_button = addOutletButton
@@ -105,6 +116,18 @@ class MapActivity : AppCompatActivity() {
 
 
     }
+    private fun getChargeInfo(){
+        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            this.registerReceiver(null, ifilter)
+        }
+        val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        var isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+                || status == BATTERY_STATUS_FULL
+        while(isCharging){
+            isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+                    || status == BATTERY_STATUS_FULL
+        }
+    }
     private fun createMap() {
 
         setUpMap()
@@ -137,6 +160,7 @@ class MapActivity : AppCompatActivity() {
                                 pl.remove()
                             }
                             routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
+                            //getChargeInfo()
                             false
                         }
                     }
