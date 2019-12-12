@@ -1,5 +1,6 @@
 package com.ufpe.onepercent
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -20,21 +21,17 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.maps.android.PolyUtil
+import com.ufpe.onepercent.model.Outlet
+import com.ufpe.onepercent.model.User
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.add_outlet_dialog.view.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
 import org.json.JSONObject
-import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.log
 
 
 class MapActivity : AppCompatActivity() {
@@ -76,7 +73,12 @@ class MapActivity : AppCompatActivity() {
             Toast.makeText(this, logged_username + " Logged In", Toast.LENGTH_LONG).show()
         }
 
-        var logged_user = User(name=logged_username!!, id = userId!!, photoUrl = photoUrl!!, score = 0)
+        var logged_user = User(
+            name = logged_username!!,
+            id = userId!!,
+            photoUrl = photoUrl!!,
+            score = 0
+        )
         getUsers(logged_user)
 
         //val destiny: LatLng = it.position
@@ -96,7 +98,10 @@ class MapActivity : AppCompatActivity() {
 
             mDialogView.dialogAddButton.setOnClickListener {
                 mAlertDialog.dismiss()
-                val outlet = Outlet(place = mDialogView.dialogPlaceText.text.toString(), description = mDialogView.dialogDescriptionText.text.toString())
+                val outlet = Outlet(
+                    place = mDialogView.dialogPlaceText.text.toString(),
+                    description = mDialogView.dialogDescriptionText.text.toString()
+                )
                 val debugText: String = "Outlet added!\nplace: %s\ndesc: %s".format(outlet.place, outlet.description)
 
                 addMarkeratDatabase(lastLocation.latitude,lastLocation.longitude,outlet.place as String,outlet.description as String)
@@ -107,7 +112,7 @@ class MapActivity : AppCompatActivity() {
 
         val score_button = scoreButton
         score_button.setOnClickListener {
-            println(users)
+            startActivity(Intent(this, ScoreActivity::class.java))
 
         }
 
@@ -125,7 +130,12 @@ class MapActivity : AppCompatActivity() {
                     var score:Long = child["score"] as Long
                     var photoUrl:String = child["photoUrl"] as String
                     var id: String = child["id"] as String
-                    var user = User(name = username, score = score, photoUrl = photoUrl, id = id)
+                    var user = User(
+                        name = username,
+                        score = score,
+                        photoUrl = photoUrl,
+                        id = id
+                    )
                     users.add(user)
 
                     if (username == logged_user.name) {
@@ -149,7 +159,7 @@ class MapActivity : AppCompatActivity() {
         })
     }
 
-    private fun addUserDatabase(user:User){
+    private fun addUserDatabase(user: User){
 
         val db_user:MutableMap<String, Any> = mutableMapOf()
         db_user["username"] = user.name

@@ -1,4 +1,4 @@
-package com.ufpe.onepercent
+package com.ufpe.onepercent.model
 
 class Outlet(val place: String, val description: String) {
     init {
