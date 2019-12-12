@@ -98,8 +98,10 @@ class MainActivity : AppCompatActivity() {
     private fun goToMapActivity(account: GoogleSignInAccount) {
         var intent = Intent(this, MapActivity::class.java)
         val username:String = if(account.email == null) "" else account.email!!.split("@")[0]
-        intent.putExtra("photoUrl", account.photoUrl)
+        intent.putExtra("photoUrl", account.photoUrl.toString())
         intent.putExtra("username", username)
+        intent.putExtra("id", account.id)
+        println("************************** "+ account.id)
         startActivity(intent)
     }
 }
