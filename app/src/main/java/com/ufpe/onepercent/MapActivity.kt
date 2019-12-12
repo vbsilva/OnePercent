@@ -41,6 +41,7 @@ class MapActivity : AppCompatActivity() {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
     val ref = FirebaseDatabase.getInstance().getReference("markers")
+    val users_ref = FirebaseDatabase.getInstance().getReference("users")
     lateinit var pl: Polyline
     lateinit var mapFragment: SupportMapFragment
     lateinit var googleMap: GoogleMap
@@ -83,6 +84,32 @@ class MapActivity : AppCompatActivity() {
                 addMarkeratDatabase(lastLocation.latitude,lastLocation.longitude,outlet.place as String,outlet.description as String)
             }
         }
+
+
+        val score_button = scoreButton
+        score_button.setOnClickListener {
+            getUsers()
+        }
+
+    }
+
+
+
+    private fun getUsers(){
+        users_ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (i in dataSnapshot.children){
+                    var username:String = i.key as String
+                    var score = i.value as Long
+                    var user = User(name=username, score=score)
+                    println(user.name)
+                    println(user.score)
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {
+                println("Error!!!")
+            }
+        })
     }
     private fun addMarkeratDatabase(lat:Double,lng:Double,desc:String,loc:String){
 
