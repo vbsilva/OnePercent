@@ -47,6 +47,9 @@ class MapActivity : AppCompatActivity() {
     lateinit var googleMap: GoogleMap
     lateinit var lastLocation: Location
     lateinit var fusedLocationClient: FusedLocationProviderClient
+
+
+
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -58,7 +61,13 @@ class MapActivity : AppCompatActivity() {
             println(e.message)
         }
 
+        var extras_data = intent.extras
 
+        if (extras_data != null) {
+            var username = extras_data.getString("username")
+            var photoUrl = extras_data.getString("photoUrl")
+            Toast.makeText(this, username + " Logged In", Toast.LENGTH_LONG).show()
+        }
         //val destiny: LatLng = it.position
             //routeMaker(destiny, LatLng(lastLocation.latitude,lastLocation.longitude))
             //return@setOnMarkerClickListener true
@@ -102,8 +111,6 @@ class MapActivity : AppCompatActivity() {
                     var username:String = i.key as String
                     var score = i.value as Long
                     var user = User(name=username, score=score)
-                    println(user.name)
-                    println(user.score)
                 }
             }
             override fun onCancelled(databaseError: DatabaseError) {

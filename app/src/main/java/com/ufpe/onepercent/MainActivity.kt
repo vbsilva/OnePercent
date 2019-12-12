@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startActivity(Intent(this, MapActivity::class.java))
-        finish()
+        //startActivity(Intent(this, MapActivity::class.java))
+        //finish()
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -45,11 +45,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             ///Deixando para testes no MI8
-            else{
-                sign_in_button.visibility = View.GONE
-                startActivity(Intent(this, MapActivity::class.java))
-                finish()
-            }
+            //else{
+            //    sign_in_button.visibility = View.GONE
+            //    startActivity(Intent(this, MapActivity::class.java))
+            //    finish()
+           // }
             //TIRAR ISSO DEPOIS
         }
 
@@ -96,8 +96,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToMapActivity(account: GoogleSignInAccount) {
-        Toast.makeText(this, account.displayName + " Signed In", Toast.LENGTH_LONG).show()
-        startActivity(Intent(this, MapActivity::class.java))
+        var intent = Intent(this, MapActivity::class.java)
+        val username:String = if(account.email == null) "" else account.email!!.split("@")[0]
+        intent.putExtra("photoUrl", account.photoUrl)
+        intent.putExtra("username", username)
+        startActivity(intent)
     }
 }
 
