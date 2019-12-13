@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.Gson
 import com.google.maps.android.PolyUtil
 import com.ufpe.onepercent.model.Outlet
 import com.ufpe.onepercent.model.User
@@ -112,7 +113,12 @@ class MapActivity : AppCompatActivity() {
 
         val score_button = scoreButton
         score_button.setOnClickListener {
-            startActivity(Intent(this, ScoreActivity::class.java))
+            var intent = Intent(this, ScoreActivity::class.java)
+            var sortedList = users.sortedWith(compareByDescending({it.score}))
+            var usersJson = Gson().toJson(sortedList)
+            intent.putExtra("userList", usersJson)
+            startActivity(intent)
+            //startActivity(Intent(this, ScoreActivity::class.java))
 
         }
 
@@ -149,6 +155,7 @@ class MapActivity : AppCompatActivity() {
                 if (!found) {
                     println("\n*************************************** adding user " + logged_user.name)
                     addUserDatabase(logged_user)
+                    users.add(logged_user)
                 }
             }
 
