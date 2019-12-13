@@ -35,7 +35,10 @@ class UserListAdapter(private val list: ArrayList<User>, private val context: Co
             score.text = user.score.toString()
             val url = user.photoUrl
 
-            Picasso.get().load(url).into(img)
+            if(url !=null && url!= ""){
+                Picasso.get().load(url).into(img)
+            }
+
         }
     }
 

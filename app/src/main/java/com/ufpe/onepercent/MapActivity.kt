@@ -1,12 +1,11 @@
 package com.ufpe.onepercent
 
-import android.content.BroadcastReceiver
+
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_BATTERY_CHANGED
 import android.content.Intent.ACTION_POWER_CONNECTED
 import android.content.IntentFilter
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -21,7 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -45,7 +43,6 @@ import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.add_outlet_dialog.view.*
 import org.json.JSONObject
 import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 
 class MapActivity : AppCompatActivity() {
@@ -56,6 +53,8 @@ class MapActivity : AppCompatActivity() {
 
 
     val users_ref = FirebaseDatabase.getInstance().getReference("users")
+
+    //val users_ref = FirebaseDatabase.getInstance().getReference("usersTeste")
     lateinit var pl: Polyline
 
     lateinit var mapFragment: SupportMapFragment
@@ -114,9 +113,35 @@ class MapActivity : AppCompatActivity() {
                     place = mDialogView.dialogPlaceText.text.toString(),
                     description = mDialogView.dialogDescriptionText.text.toString()
                 )
-                val debugText: String = "Outlet added!\nplace: %s\ndesc: %s".format(outlet.place, outlet.description)
+                val debugText: String = "Outlet added!\nplace: %s\ndesc: %s\n+1 Point\nTotal: %s Points!".format(outlet.place, outlet.description, logged_user.score+1)
 
                 addMarkeratDatabase(lastLocation.latitude,lastLocation.longitude,outlet.place as String,outlet.description as String)
+                logged_user.score += 1
+                users_ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (i in dataSnapshot.children){
+                            var child: Map<String, Object> = (i.getValue() as Map<String, Object>)
+                            var username:String = child["username"] as String
+                            var score:Long = child["score"] as Long
+                            var photoUrl:String = child["photoUrl"] as String
+                            var id: String = child["id"] as String
+                            var user = User(
+                                name = username,
+                                score = score,
+                                photoUrl = photoUrl,
+                                id = id
+                            )
+                            if (username == logged_user.name) {
+                                user.score=logged_user.score
+                                i.ref.setValue(user)
+                            }
+                        }
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        println("Error!!!")
+                    }
+                })
+
                 Toast.makeText(this, debugText, Toast.LENGTH_LONG).show()
             }
         }

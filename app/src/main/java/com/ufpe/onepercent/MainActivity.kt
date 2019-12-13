@@ -45,12 +45,12 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
 
-            ///Deixando para testes no MI8
+            //Deixando para testes no MI8
             //else{
-            //    sign_in_button.visibility = View.GONE
-            //    startActivity(Intent(this, MapActivity::class.java))
-            //    finish()
-           // }
+                //sign_in_button.visibility = View.GONE
+                //startActivity(Intent(this, MapActivity::class.java))
+              //  finish()
+            //}
             //TIRAR ISSO DEPOIS
         }
 
