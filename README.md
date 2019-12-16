@@ -23,7 +23,7 @@ UI desenvolvida usando um componente RelativeLayout que estrutura:
 
 Nessa tela usou-se **Intents** para passar os dados de login da conta Google para a tela de Mapa. Também foi necessário manusear o Google Sign In na mesma *activity*, logo disparou-se a *activity* do login usando o método *startActivityForResult* e depois através do callback sobrecarregado *onActivityResult* consegue-se o resultado do Google Sign In, que também vem no Objeto de classe **Intent**.
 
-[ IMAGEM TELA DE LOGIN]
+<img src="Relatorio/images/login.png" height="500">
 
 ### Tela de Mapa
 
@@ -34,7 +34,9 @@ UI desenvolvida usando um componente *RelativeLayout* que comporta:
 - *FloatingActionButton* para adicionar fontes de energia e;
 - *FloatingActionButton* para mostrar tela do Scoreboard.
 
-[IMAGEM TELA DE MAPA]
+
+<img src="Relatorio/images/route.png" height="500">
+
 
 Nesta tela acontece vários eventos. Há conectividade com o ***Firebase*** que é usado como "banco de dados" da aplicação. Nele persiste os dados dos usuários da aplicação e dos pontos de localização referente as fontes de energia.  
 
@@ -49,7 +51,7 @@ A UI do formulário é baseada em um *xml* e *LinearLayout* que comporta:
 - Textfield para a descrição da fonte e;
 - Botão para enviar dados e cadastrar nova fonte de energia.
 
-[TELA DO FORMULARIO]
+<img src="Relatorio/images/form.png" height="500">
 
 Sobre o outro *FloatingActionButton* , que é usado para abrir o Scoreboard, tem um botão com "estrela" para indicar o Scoreboard. Este botão dispara a tela de Scoreboard, e na transição, passa os dados dos usuários, uma vez que nessa tela carregou-se os dados do banco de dados para a memória do aplicativo. Os dados são serializados em *Json* e enviados através da ***Intent*** para a tela de Scoreboard.
 
@@ -67,7 +69,7 @@ A UI da linha da tabela foi estruturada com:
 			- *Textfield* que mostra o nome do usuário e;
 			- *Textfield* que mostra o score do usuário.
 
-[IMAGEM TELA DE SCOREBOARD]
+<img src="Relatorio/images/scoreboard.png" height="500">
 
 Além da *activity* é necessário desenvolver um ***Adapter*** e indicar a fonte de dados para o *RecyclerView*. Desenvolveu-se um *Adapter* que indica para o *RecyclerView* onde carregar cada informação e como renderizar a lista. 
 
